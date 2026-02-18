@@ -10,9 +10,12 @@
   },
   "dependencies": {
     "@astrojs/react": "^4.4.0",
+    "@types/papaparse": "^5.5.2",
     "@types/react": "^18.3.24",
     "@types/react-dom": "^18.3.7",
     "astro": "^5.14.1",
+    "fuzzysort": "^3.1.0",
+    "papaparse": "^5.5.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   }
