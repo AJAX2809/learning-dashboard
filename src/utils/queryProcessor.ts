@@ -59,13 +59,15 @@ export class QueryProcessor {
       }
     }
     
-    // Second pass: fuzzy matching for each word in the query
+    // Second pass: fuzzy matching for each word in the query (3+ characters)
     if (matchedColumns.length === 0) {
-      const queryWords = normalized.split(/\s+/).filter(w => w.length > 2);
+      const queryWords = normalized.split(/\s+/).filter(w => w.length >= 3);
+      const allColumns = this.dataset.stats.columns.map(c => c.name);
+      
       for (const word of queryWords) {
-        const fuzzyMatch = this.matchColumnName(word);
-        if (fuzzyMatch) {
-          matchedColumns.push(fuzzyMatch);
+        const results = Fuzzysort.go(word, allColumns);
+        if (results.length > 0 && results[0].score > -5000) {
+          matchedColumns.push(results[0].target);
         }
       }
     }
