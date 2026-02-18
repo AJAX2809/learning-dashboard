@@ -13,7 +13,7 @@ export class QueryProcessor {
     const columnNames = this.dataset.stats.columns.map(c => c.name);
     const results = Fuzzysort.go(input, columnNames, { threshold: -10000 });
     
-    if (results.length > 0 && results[0].score > -5000) {
+    if (results.length > 0 && results[0].score > -10000) {
       return results[0].target;
     }
     
@@ -49,15 +49,22 @@ export class QueryProcessor {
     const normalized = this.normalizeQuery(query);
     const matchedColumns: string[] = [];
     
+    // First pass: exact word matching
     for (const col of this.dataset.stats.columns) {
       const colLower = col.name.toLowerCase();
       const words = colLower.split(/[_\s]+/);
       
       if (words.some(word => normalized.includes(word) && word.length > 2)) {
         matchedColumns.push(col.name);
-      } else {
-        const fuzzyMatch = this.matchColumnName(colLower);
-        if (fuzzyMatch && normalized.includes(colLower)) {
+      }
+    }
+    
+    // Second pass: fuzzy matching for each word in the query
+    if (matchedColumns.length === 0) {
+      const queryWords = normalized.split(/\s+/).filter(w => w.length > 2);
+      for (const word of queryWords) {
+        const fuzzyMatch = this.matchColumnName(word);
+        if (fuzzyMatch) {
           matchedColumns.push(fuzzyMatch);
         }
       }
